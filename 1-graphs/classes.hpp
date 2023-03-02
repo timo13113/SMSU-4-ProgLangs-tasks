@@ -59,7 +59,7 @@ class Path{
         Path() = default; // дефолтный конструктор оставляет стоимости равными максинт для адекватной работы Дейкстры
         Path(std::vector<Cruise> crs, unsigned int start, std::vector<unsigned int> cities) { // конструктор с пустым вектором делает стоимости 0, конструктор с непустым вектором работает как ожидается
             cruises = crs; 
-            long long unsigned int t, c = 0;
+            long long unsigned int t = 0, c = 0;
             for (auto x: crs)
             {
                 t += x.cruise_time;
