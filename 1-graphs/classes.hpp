@@ -86,7 +86,15 @@ class Path{
             Path newpath(new_cruises, this->start_city, new_cities);
             return newpath;
         };
-        Cruise operator [] (unsigned int i) { // получить i-й элемент пути
-            return this->cruises.at(i);
+        std::pair<unsigned int, Cruise> operator [] (unsigned int i) { // получить i-й элемент пути {город, круиз}
+            return std::make_pair(this->transfer_cities.at(i), this->cruises.at(i));
         };
+        unsigned int length() {
+            if (this->transfer_cities.size() == this->cruises.size())
+                return this->transfer_cities.size();
+            else {
+                std::cout << "From Path class: bad contents size! something went terribly wrong";
+                return 0;
+            }
+        }
 };

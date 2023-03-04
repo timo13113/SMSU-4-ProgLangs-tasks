@@ -2,16 +2,12 @@
 #include <fstream>
 #include <string>
 #include <vector>
-// #include <array>
-#include <windows.h>
 #include <utility>
 #include <set>
-#include <unordered_set>
 #include <algorithm>
 #include <optional>
-#include <limits>
-#include <conio.h>
 
+// заменить строку ниже чтобы перекомпилировать с разными портами ncurses'а
 #include <pdcurses.h>
 
 #include "classes.hpp"
@@ -38,7 +34,8 @@ bool dijkstra(
         long long unsigned int limit = 0,
         bool logs = false
     ) {
-    if (logs) std::cout << "dijkstra started from " << cities[from] << " to " << cities[to] << "\n";
+    if (logs) 
+        std::cout << "dijkstra started from " << cities[from] << " to " << cities[to] << "\n";
     unsigned int n = cities.size();
     paths_to.clear();
     paths_to.resize(n);
@@ -57,17 +54,17 @@ bool dijkstra(
             std::optional<unsigned int> v; // начальная вершина
             for (unsigned int j = 0; j < n; j++)
                 if (!paths_to.at(j).empty()) // если есть пути в вершину
-                    if (!used.at(j) && (!v.has_value() || paths_to.at(j).at(0).transfer_cities.size() < paths_to.at(*v).at(0).transfer_cities.size())) // найти неисследованную вершину с минимальными затратами до нее
+                    if (!used.at(j) && (!v.has_value() || paths_to.at(j).at(0).length() < paths_to.at(*v).at(0).length())) // найти неисследованную вершину с минимальными затратами до нее
                         v = j;
             if (!v.has_value() || paths_to.at(*v).at(0).time_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             ///////////////////////////////////////////////
             // TODO - нормально обработать ситуацию выше //
             ///////////////////////////////////////////////
             {
-                std::cout << "!!! no path from A to B !!!\n";
+                // std::cout << "!!! no path from A to B !!!\n";
                 return 1; // то мы не можем прийти к этой вершине вовсе
             }
-            if (have_limit && paths_to.at(*v).at(0).transfer_cities.size() > limit) // если мы считаем предел и он превышен
+            if (have_limit && paths_to.at(*v).at(0).length() > limit) // если мы считаем предел и он превышен
             {
                 halt_on_limit = true;
                 break;
@@ -78,7 +75,7 @@ bool dijkstra(
             {
                 for (auto cruise: edges.second) // для каждого круиза в город под номером edges.first
                 {
-                    if ((paths_to.at(edges.first).empty() || paths_to.at(*v).at(0).transfer_cities.size() + 1 < paths_to.at(edges.first).at(0).transfer_cities.size()) && (transport_whitelist.at(cruise.transport_type_id))) // если мы можем прийти туда быстрее и по разрешенному транспорту
+                    if ((paths_to.at(edges.first).empty() || paths_to.at(*v).at(0).length() + 1 < paths_to.at(edges.first).at(0).length()) && (transport_whitelist.at(cruise.transport_type_id))) // если мы можем прийти туда быстрее и по разрешенному транспорту
                     {
                         std::vector<Path> newpaths; // все новые пути через v в edges.first
                         for (auto x: paths_to.at(*v)) {
@@ -86,7 +83,7 @@ bool dijkstra(
                         }
                         paths_to.at(edges.first) = newpaths; // вставить новые пути в paths_to
                     }
-                    else if ((paths_to.at(edges.first).empty() || paths_to.at(*v).at(0).transfer_cities.size() + 1 == paths_to.at(edges.first).at(0).transfer_cities.size()) && (transport_whitelist.at(cruise.transport_type_id))) // если мы можем прийти туда так же быстро и по разрешенному транспорту
+                    else if ((paths_to.at(edges.first).empty() || paths_to.at(*v).at(0).length() + 1 == paths_to.at(edges.first).at(0).length()) && (transport_whitelist.at(cruise.transport_type_id))) // если мы можем прийти туда так же быстро и по разрешенному транспорту
                     {
                         for (auto x: paths_to.at(*v)) {
                             paths_to.at(edges.first).push_back(x + std::make_pair(cruise, edges.first)); // дополнить к путям в v новый круиз до edges.first
@@ -110,7 +107,7 @@ bool dijkstra(
                         v = j;
             if (!v.has_value() || paths_to.at(*v).at(0).time_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             {
-                std::cout << "!!! no path from A to B !!!\n";
+                // std::cout << "!!! no path from A to B !!!\n";
                 return 1; // то мы не можем прийти к этой вершине вовсе
             }
             // std::cout << v.value();
@@ -169,7 +166,7 @@ bool dijkstra(
                         v = j;
             if (!v.has_value() || paths_to.at(*v).at(0).money_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             {
-                std::cout << "!!! no path from A to B !!!\n";
+                // std::cout << "!!! no path from A to B !!!\n";
                 return 1; // то мы не можем прийти к этой вершине вовсе
             }
             if (have_limit && paths_to.at(*v).at(0).money_cost > limit) // если мы считаем предел и он превышен
@@ -244,7 +241,7 @@ bool dijkstra(
         else { // если мы считаем конкретные пути из А в Б (№1, 2, 3)
             std::cout << cities[to] << "\n";
             if (count_only_number_of_cities)
-                std::cout << "answer - " << paths_to.at(to).at(0).transfer_cities.size() << " cruises minimum\n";
+                std::cout << "answer - " << paths_to.at(to).at(0).length() << " cruises minimum\n";
             for (auto x: paths_to.at(to))
             {
                 x.print();
@@ -490,9 +487,9 @@ void transport_input() {
         if (!was_found)
             bad_transports.push_back(input_transports);
         
-        for (bool x: transport_whitelist)
-            std::cout << x;
-        std::cout << "\n";
+        // for (bool x: transport_whitelist)
+        //     std::cout << x;
+        // std::cout << "\n";
     }
 }
 
@@ -520,20 +517,20 @@ std::string(" \\___\\___/__/|_|\\_\\__,_/_/  \\_\\___|\\___|_/  V  \\__\\\n");
 }
 void path_print(Path path) {
             printw("Путь: %s", cities[path.start_city].c_str());
-            for (unsigned int i = 0; i < path.cruises.size(); i++)
+            for (unsigned int i = 0; i < path.length(); i++)
             {
                 std::string cruise_str;
                 cruise_str = 
-                    "(взяв билет на " + transport_types.at(path.cruises.at(i).transport_type_id) + 
-                    ", проведя в пути " + std::to_string(path.cruises.at(i).cruise_time) + 
-                    " минут, потратив "+ std::to_string(path.cruises.at(i).cruise_fare) + " рублей)";
+                    "(взяв билет на " + transport_types.at(path[i].second.transport_type_id) + 
+                    ", проведя в пути " + std::to_string(path[i].second.cruise_time) + 
+                    " минут, потратив "+ std::to_string(path[i].second.cruise_fare) + " рублей)";
                 printw(" -> %s -> %s", 
                     cruise_str.c_str(), 
-                    cities[path.transfer_cities.at(i)].c_str()
+                    cities[path[i].first].c_str()
                 );
             }
             attron(COLOR_PAIR(3));
-            printw("\nВсего будет потрачено %llu минут, %llu рублей и будет осуществлено %llu прямых рейсов.", path.time_cost, path.money_cost, path.transfer_cities.size());
+            printw("\nВсего будет потрачено %llu минут, %llu рублей и будет осуществлено %llu прямых рейсов.", path.time_cost, path.money_cost, path.length());
             attroff(COLOR_PAIR(3));
             printw("\n");
 }
@@ -555,7 +552,23 @@ void print_paths_a_b(unsigned int a, unsigned int b) {
     // printw("\n\nСкроллить окно с помощью стрелочек вверх/вниз. Нажмите любую клавишу, чтобы вернуться в главное меню...");
     printw("\n\nНажмите любую клавишу, чтобы вернуться в главное меню...");
     curs_set(0);
-    getch();
+    // getch();
+    // bool exit = false;
+    // while (!exit) {
+    //     switch (getch())
+    //     {
+    //     case KEY_UP:
+    //         scrl(-1);
+    //         break;
+    //     case KEY_DOWN:
+    //         scrl(1);
+    //         break;
+    //     default:
+    //         exit = true;
+    //         break;
+    //     }
+    // }
+
 }
 void print_paths_multiple(unsigned int a) {
     clear();
@@ -642,15 +655,7 @@ void scr_5() {
     dijkstra(a, a, true, true, false, true, limit); // задание №5
     print_paths_multiple(a);
 }
-    // dijkstra(0, 3, true, false); // задание №1
-    // dijkstra(0, 3, false, true); // задание №2
-    // dijkstra(0, 3, true, true);
-    // dijkstra(0, 3, false, false);
-    // // dijkstra(0, 5, false, false);
-    // dijkstra(0, 0, true, true);
-    // dijkstra(0, 2, true, true, true); // задание №3
-    // dijkstra(0, 0, false, true, false, true, 500); // задание №4
-    // dijkstra(0, 0, true, true, false, true, 120); // задание №5
+
 
 void select_screen() {
 
@@ -752,6 +757,15 @@ int main(int argc, char** argv) {
             return 0;
         }
     }
+    // dijkstra(0, 3, true, false); // задание №1
+    // dijkstra(0, 3, false, true); // задание №2
+    // dijkstra(0, 3, true, true);
+    // dijkstra(0, 3, false, false);
+    // // dijkstra(0, 5, false, false);
+    // dijkstra(0, 0, true, true);
+    // dijkstra(0, 2, true, true, true); // задание №3
+    // dijkstra(0, 0, false, true, false, true, 500); // задание №4
+    // dijkstra(0, 0, true, true, false, true, 120); // задание №5
 
     // log();
     initscr(); 
