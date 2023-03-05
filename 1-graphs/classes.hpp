@@ -1,10 +1,7 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <windows.h>
-#include <utility>
-#include <iostream>
+#pragma once
+
+#include "libs.hpp"
+
 
 class Cruise{
     public:
@@ -86,7 +83,7 @@ class Path{
             Path newpath(new_cruises, this->start_city, new_cities);
             return newpath;
         };
-        std::pair<unsigned int, Cruise> operator [] (unsigned int i) { // получить i-й элемент пути {город, круиз}
+        std::pair<unsigned int, Cruise> operator [] (unsigned int i) { // получить i-й элемент пути - пара {город, круиз}
             return std::make_pair(this->transfer_cities.at(i), this->cruises.at(i));
         };
         unsigned int length() {
@@ -97,4 +94,16 @@ class Path{
                 return 0;
             }
         }
+        // TODO: сделать получение времени методами, чтобы не считать при каждом добавлении
+        long long unsigned int get_total_time() {
+            return 0;
+        }
+        long long unsigned int get_total_cost() {
+            return 0;
+        }
 };
+
+// class Graph{
+//     public:
+//         std::vector<std::vector<std::pair<unsigned int /* направление */, std::set<Cruise/* набор ребер из А в Б */>>>> contents;
+// }
