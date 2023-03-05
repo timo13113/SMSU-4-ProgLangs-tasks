@@ -1,18 +1,3 @@
-#include <iostream>
-#include <utility>
-
-// #include "dijkstra.hpp"
-
-// std::set<std::pair<unsigned int /* из */, std::pair<unsigned int /* в */, Cruise/* ребро */>>> all_cruises;
-// std::vector<std::vector<std::pair<unsigned int /* направление */, std::set<Cruise/* набор ребер из А в Б */>>>> graph;
-// std::vector<std::string> cities;
-// std::vector<std::string> transport_types;
-// std::vector<bool> transport_whitelist; // разрешенный транспорт
-// std::vector<std::vector<Path>> paths_to; // кратчайшие пути из from в город по индексу
-// std::vector<bool> used; // прошли этот город или нет
-
-
-
 
 
 // void debug_mode(int argc, char** argv) {
@@ -58,8 +43,4 @@
 //         }
 //     }
 // }
-
-void measure_time () { return; }
-
-void measure_memory () { return; }
 

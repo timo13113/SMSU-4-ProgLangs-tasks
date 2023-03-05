@@ -1,6 +1,7 @@
 #include "libs.hpp"
 #include "classes.hpp"
 #include "dijkstra.hpp"
+#include "debug.hpp"
 
 unsigned int city_input(
     const std::vector<std::string> &city_names,
@@ -284,7 +285,8 @@ void scr_1(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto ans = dijkstra_heavy(a, b, graph, transport_whitelist, true, false);
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto ans = t_dijkstra_heavy(a, b, graph, transport_whitelist, true, false, false, false, 0, false);
     if (!ans.has_value()) // задание №1
         // не нашли путь из А в Б
         we_are_sorry();
@@ -302,7 +304,8 @@ void scr_2(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto ans = dijkstra_heavy(a, b, graph, transport_whitelist, false, true);
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto ans = t_dijkstra_heavy(a, b, graph, transport_whitelist, false, true, false, false, 0, false);
     if (!ans.has_value()) // задание №2
         // не нашли путь из А в Б
         we_are_sorry();
@@ -320,7 +323,8 @@ void scr_3(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto ans = dijkstra_heavy(a, b, graph, transport_whitelist, true, true, true);
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto ans = t_dijkstra_heavy(a, b, graph, transport_whitelist, true, true, true, false, 0, false);
     if (!ans.has_value()) // задание №3
         // не нашли путь из А в Б
         we_are_sorry();
@@ -338,7 +342,8 @@ void scr_4(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto ans = dijkstra_heavy(a, a, graph, transport_whitelist, false, true, false, true, limit); // задание №4
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto ans = t_dijkstra_heavy(a, a, graph, transport_whitelist, false, true, false, true, limit, false); // задание №4
     print_paths_multiple(a, city_names, ans.value().second, ans.value().first, transport_names);
 }
 void scr_5(
@@ -352,7 +357,8 @@ void scr_5(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto ans = dijkstra_heavy(a, a, graph, transport_whitelist, true, true, false, true, limit); // задание №5
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto ans = t_dijkstra_heavy(a, a, graph, transport_whitelist, true, true, false, true, limit, false); // задание №5
     print_paths_multiple(a, city_names, ans.value().second, ans.value().first, transport_names);
 }
 

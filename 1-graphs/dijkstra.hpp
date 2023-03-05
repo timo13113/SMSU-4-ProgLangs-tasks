@@ -48,6 +48,11 @@ std::optional<std::pair<
                 if (!found_paths.at(j).empty()) // если есть пути в вершину
                     if (!used.at(j) && (!v.has_value() || found_paths.at(j).at(0).length() < found_paths.at(*v).at(0).length())) // найти неисследованную вершину с минимальными затратами до нее
                         v = j;
+            if (have_limit && (!v.has_value() || found_paths.at(*v).at(0).time_cost == UINT64_MAX)) // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
+            {
+                halt_on_limit = true;
+                break;
+            }
             if (!v.has_value() || found_paths.at(*v).at(0).time_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             ///////////////////////////////////////////////
             // TODO - нормально обработать ситуацию выше //
@@ -97,6 +102,11 @@ std::optional<std::pair<
                 if (!found_paths.at(j).empty()) // если есть пути в вершину
                     if (!used.at(j) && (!v.has_value() || found_paths.at(j).at(0).time_cost < found_paths.at(*v).at(0).time_cost)) // найти неисследованную вершину с минимальными затратами до нее
                         v = j;
+            if (have_limit && (!v.has_value() || found_paths.at(*v).at(0).time_cost == UINT64_MAX)) // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
+            {
+                halt_on_limit = true;
+                break;
+            }
             if (!v.has_value() || found_paths.at(*v).at(0).time_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             {
                 // std::cout << "!!! no path from A to B !!!\n";
@@ -156,6 +166,11 @@ std::optional<std::pair<
                 if (!found_paths.at(j).empty()) // если есть пути в вершину
                     if (!used.at(j) && (!v.has_value() || found_paths.at(j).at(0).money_cost < found_paths.at(*v).at(0).money_cost)) // найти неисследованную вершину с минимальными затратами до нее
                         v = j;
+            if (have_limit && (!v.has_value() || found_paths.at(*v).at(0).money_cost == UINT64_MAX)) // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
+            {
+                halt_on_limit = true;
+                break;
+            }
             if (!v.has_value() || found_paths.at(*v).at(0).money_cost == UINT64_MAX) // если мы исследовали все вершины но не дошли куда надо ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
             {
                 // std::cout << "!!! no path from A to B !!!\n";
