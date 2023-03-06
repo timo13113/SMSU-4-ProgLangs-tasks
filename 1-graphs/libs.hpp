@@ -33,8 +33,14 @@
     }
 #else
     #include <ncurses.h>
+    #include <sys/resource.h>
     #define EnableRuSymbols ;
-    void print_memory() { return; }
+    void print_memory() {
+        struct rusage mem;
+        getrusage(RUSAGE_SELF, &mem);
+        std::cout << "peak used phys memory: " << mem.ru_maxrss << " KB" << std::endl;
+        return;
+    }
 #endif
 
 template<typename F> 
