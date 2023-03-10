@@ -177,9 +177,11 @@ void we_are_sorry() {
 void path_print(
     Path path, 
     const std::vector<std::string> &city_names, 
-    const std::vector<std::string> &transport_names
+    const std::vector<std::string> &transport_names,
+    std::fstream &log
     ) {
     printw("Путь: %s", city_names[path.start_city].c_str());
+    log << "Путь: \n\t" << city_names[path.start_city];
     for (unsigned int i = 0; i < path.length(); i++)
     {
         std::string cruise_str;
@@ -194,10 +196,15 @@ void path_print(
             cruise_str.c_str(), 
             city_names[path[i].first].c_str()
         );
+        log << " -> " << cruise_str.c_str() << " -> \n\t" << city_names[path[i].first].c_str();
     }
     attron(COLOR_PAIR(3));
-    printw("\nВсего будет потрачено %llu минут, %llu рублей и будет осуществлено %llu прямых рейсов.", path.time_cost, path.money_cost, path.length());
+    printw("\nВсего будет потрачено %llu минут, %llu рублей и будет осуществлено %llu прямых рейсов.", 
+        path.time_cost, path.money_cost, path.length());
     attroff(COLOR_PAIR(3));
+    log << "\nВсего будет потрачено " << path.time_cost 
+        << " минут, " << path.money_cost 
+        << " рублей и будет осуществлено " << path.length() << " прямых рейсов.\n";
     printw("\n");
 }
 
@@ -206,21 +213,26 @@ void print_paths_a_b(
     const unsigned int b, 
     const std::vector<std::string> &city_names, 
     const PathsMapping &found_paths,
-    const std::vector<std::string> &transport_names
+    const std::vector<std::string> &transport_names,
+    std::fstream &log
     ) {
     clear();
     printw("Лучший(е) путь(и) из города %s в город %s:\n", 
         city_names[a].c_str(), city_names[b].c_str());
+    log << "Лучший(е) путь(и) из города " << city_names[a] 
+        << " в город " << city_names[b] << ":\n";
     attron(COLOR_PAIR(4));
     printw("Всего найдено %llu путей.\n", found_paths.getNumOfPathsTo(b));
+    log << "Всего найдено " << found_paths.getNumOfPathsTo(b) << " путей.\n";
     attroff(COLOR_PAIR(4));
     long long unsigned int i = 1;
         for (auto x: found_paths.getPathsTo(b))
         {
+            log << i << ") ";
             attron(COLOR_PAIR(3));
             printw("%d) ", i++);
             attron(COLOR_PAIR(3));
-            path_print(x, city_names, transport_names);
+            path_print(x, city_names, transport_names, log);
         }
     // printw("\n\nСкроллить окно с помощью стрелочек вверх/вниз. Нажмите любую клавишу, чтобы вернуться в главное меню...");
     printw("\n\nНажмите любую клавишу, чтобы вернуться в главное меню...");
@@ -248,34 +260,42 @@ void print_paths_multiple(
     const std::vector<std::string> &city_names, 
     const std::vector<bool> &city_was_reached,
     const PathsMapping &found_paths, 
-    const std::vector<std::string> &transport_names
+    const std::vector<std::string> &transport_names,
+    std::fstream &log
     ) {
     clear();
     printw("Все пути из города %s:\n", city_names[a].c_str());
+    log << "Все пути из города " << city_names[a] << ":\n";
     unsigned int num_visited = 0;
     for (bool x: city_was_reached)
         if (x) num_visited++;
     long long unsigned int i = 1;
         for (unsigned int j = 0; j < found_paths.n; j++) {
+            if ((found_paths.source_id == j) && !SHOW_TRIVIAL_PATHS)
+                continue;
             if (city_was_reached.at(j))
             {
                 attron(A_UNDERLINE);
                 printw("Пути в город %s:", city_names[j].c_str());
                 attroff(A_UNDERLINE);
                 printw(" ");
+                log << "Пути в город " << city_names[j] << ": ";
                 for (auto x: found_paths.getPathsTo(j))
                 {
+                    log << i << ") ";
                     attron(COLOR_PAIR(3));
                     printw("%d) ", i++);
                     attron(COLOR_PAIR(3));
-                    path_print(x, city_names, transport_names);
+                    path_print(x, city_names, transport_names, log);
                 }
             }
         }
     attron(COLOR_PAIR(4));
     printw("Всего найдено %llu путей в %u городов.", i-1, num_visited);
+    log << "Всего найдено " << i-1 << " путей в " << num_visited << " городов.";
     attroff(COLOR_PAIR(4));
     printw("\n\nНажмите любую клавишу, чтобы вернуться в главное меню...");
+    log << "\n";
     curs_set(0);
     getch();
 }
@@ -283,7 +303,8 @@ void print_paths_multiple(
 void scr_1(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     unsigned int a = city_input(city_names);
     unsigned int b = city_input(city_names, "в котором закончите движение:");
@@ -292,19 +313,20 @@ void scr_1(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, true, false, false, false, 0, false);
     if (!ans.has_value()) // задание №1
         // не нашли путь из А в Б
         we_are_sorry();
     else 
-        print_paths_a_b(a, b, city_names, ans.value().first, transport_names);
+        print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
 }
 void scr_2(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     unsigned int a = city_input(city_names);
     unsigned int b = city_input(city_names, "в котором закончите движение:");
@@ -313,19 +335,20 @@ void scr_2(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, false, true, false, false, 0, false);
     if (!ans.has_value()) // задание №2
         // не нашли путь из А в Б
         we_are_sorry();
     else
-        print_paths_a_b(a, b, city_names, ans.value().first, transport_names);
+        print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
 }
 void scr_3(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     unsigned int a = city_input(city_names);
     unsigned int b = city_input(city_names, "в котором закончите движение:");
@@ -334,19 +357,20 @@ void scr_3(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, true, true, true, false, 0, false);
     if (!ans.has_value()) // задание №3
         // не нашли путь из А в Б
         we_are_sorry();
     else 
-        print_paths_a_b(a, b, city_names, ans.value().first, transport_names);
+        print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
 }
 void scr_4(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     unsigned int a = city_input(city_names);
     long long unsigned int limit = limit_input();
@@ -355,15 +379,17 @@ void scr_4(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, a, graph, transport_whitelist, false, true, false, true, limit, false);
-    print_paths_multiple(a, city_names, ans.value().second, ans.value().first, transport_names);
+    print_paths_multiple(
+        a, city_names, ans.value().second, ans.value().first, transport_names, log);
 }
 void scr_5(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     unsigned int a = city_input(city_names);
     long long unsigned int limit = limit_input("времени, limit_time:");
@@ -372,16 +398,18 @@ void scr_5(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy");
+    auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, a, graph, transport_whitelist, true, true, false, true, limit, false);
-    print_paths_multiple(a, city_names, ans.value().second, ans.value().first, transport_names);
+    print_paths_multiple(
+        a, city_names, ans.value().second, ans.value().first, transport_names, log);
 }
 
 void select_screen(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
 
     const char *choices[] = {
@@ -437,11 +465,11 @@ void select_screen(
         }
         switch (highlight)
         {
-        case 0: scr_1(city_names, transport_names, graph); break;
-        case 1: scr_2(city_names, transport_names, graph); break;
-        case 2: scr_3(city_names, transport_names, graph); break;
-        case 3: scr_4(city_names, transport_names, graph); break;
-        case 4: scr_5(city_names, transport_names, graph); break;
+        case 0: scr_1(city_names, transport_names, graph, log); break;
+        case 1: scr_2(city_names, transport_names, graph, log); break;
+        case 2: scr_3(city_names, transport_names, graph, log); break;
+        case 3: scr_4(city_names, transport_names, graph, log); break;
+        case 4: scr_5(city_names, transport_names, graph, log); break;
         default:
             break;
         }
@@ -452,7 +480,8 @@ void select_screen(
 void init_tui(
     const std::vector<std::string> &city_names,
     const std::vector<std::string> &transport_names, 
-    const Graph &graph
+    const Graph &graph,
+    std::fstream &log
     ) {
     
     initscr(); 
@@ -467,7 +496,7 @@ void init_tui(
     init_pair(4, COLOR_CYAN, COLOR_BLACK);
     keypad(stdscr, true);
 
-    select_screen(city_names, transport_names, graph);
+    select_screen(city_names, transport_names, graph, log);
 
     endwin();
 }

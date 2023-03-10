@@ -22,13 +22,15 @@ void read_data(
     std::string filename, 
     std::vector<std::string> &city_names,
     std::vector<std::string> &transport_names, 
-    Graph &graph
+    Graph &graph,
+    std::fstream &log
     ) {
     // read data from file
     std::ifstream data(filename);
     std::string delimiter = "\" \"";
     
     // for each line in file
+    uint64_t counter = 0;
     for (std::string line; std::getline(data, line);) 
     {
         // в строке есть символ комментария
@@ -37,7 +39,8 @@ void read_data(
         if (line.size() == 0) 
             // строка пустая
             continue;
-
+        
+        ++counter;
         std::string from_city = line.substr(0, line.find(delimiter));
         from_city.erase(0, 1); // remove heading '"'
         line.erase(0, line.find(delimiter) + delimiter.length());
@@ -60,4 +63,5 @@ void read_data(
         }
         graph.addNodeToGraph(id_from, id_to, Cruise(id_transport, cruise_time, cruise_fare));
     }
+    log << "read from file, total lines processed - " << counter << "\n";
 }

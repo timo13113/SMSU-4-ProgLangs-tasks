@@ -8,11 +8,9 @@
 std::vector<std::string> city_names;
 // названия транспорта
 std::vector<std::string> transport_names;
-// разрешенный транспорт
-// std::vector<bool> transport_whitelist;
 // граф
 Graph graph;
-// std::vector<std::vector<std::pair<unsigned int, std::set<Cruise>>>> graph;
+
 
 
 int main(int argc, char** argv) {
@@ -25,17 +23,22 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    std::fstream log;
+    log.open("log.txt", std::fstream::out);
+    log << "starting program...\n";
 
-    auto t_read_data = timeit_void(read_data, "read_data");
+    auto t_read_data = timeit_void(read_data, "read_data", log);
 
     // "data.txt" - <50 строк
     // "big_data.txt" - 10000 строк 1000 городов
     // "very_big_data.txt" - 100000 строк 1000 городов
-    t_read_data(argv[1], city_names, transport_names, graph);
+    t_read_data(argv[1], city_names, transport_names, graph, log);
 
-    print_memory();
-    init_tui(city_names, transport_names, graph);
-    print_memory();
+    print_memory(log);
+    init_tui(city_names, transport_names, graph, log);
+    print_memory(log);
 
+    log << "finishing program...\n";
+    log.close();
     return 0;
 }
