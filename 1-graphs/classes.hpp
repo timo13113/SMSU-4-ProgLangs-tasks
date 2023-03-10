@@ -9,7 +9,7 @@
  * @param cruise_time затраченное время на переход
  * @param cruise_fare затраченные деньги на переход
  */
-class Cruise{
+class Cruise {
 public:
     unsigned int transport_type_id;
     unsigned int cruise_time = 0;
@@ -71,7 +71,7 @@ std::ostream& operator <<(std::ostream & os, const Cruise & cruise) {
  * @param money_cost стоимость обхода по деньгам
  * @param n_tickets стоимость обхода по пересадкам
  */
-class Path{
+class Path {
 public:
     unsigned int start_city;
     std::vector<unsigned int> transfer_cities;
@@ -135,7 +135,7 @@ public:
 /**
  * Класс графа
  */
-class Graph{
+class Graph {
 public:
     std::vector<std::vector<std::pair<unsigned int, std::set<Cruise>>>> graph;
     Graph() = default;
@@ -148,7 +148,7 @@ public:
      *  @return или пустой optional, если ребер нет
      */
     std::optional<std::vector<std::pair<unsigned int, std::set<Cruise>>>::iterator> 
-    hasEdgesBetween(unsigned int from, unsigned int to) {
+    has_edges_between(unsigned int from, unsigned int to) {
         auto iter = std::find_if(
             graph.at(from).begin(), graph.at(from).end(), 
             [to](std::pair<unsigned int, std::set<Cruise>> x) -> bool {return x.first == to;});
@@ -158,8 +158,8 @@ public:
             return std::make_optional(iter);
         }
     }
-    void addNodeToGraph(unsigned int from, unsigned int to, Cruise edge) {
-        auto edges = hasEdgesBetween(from, to);
+    void add_node_to_graph(unsigned int from, unsigned int to, Cruise edge) {
+        auto edges = has_edges_between(from, to);
         
         if (!edges) {
             graph.at(from).push_back(std::make_pair(to, std::set<Cruise>{edge}));
@@ -178,7 +178,7 @@ public:
  * Класс маппинга путей из некой точки выхода - источника в каждую другую точку, 
  * если соответствующие пути существуют/были найдены
  */
-class PathsMapping{
+class PathsMapping {
 public:
     std::vector<std::vector<Path>> paths;
     unsigned int source_id;
@@ -198,30 +198,30 @@ public:
         n = _n;
     }
     // есть ли в маппинге путь из источника в аргумент
-    bool hasPathsTo(unsigned int dest) const { return !paths.at(dest).empty(); }
+    bool has_paths_to(unsigned int dest) const { return !paths.at(dest).empty(); }
     // кол-во прямых рейсов первого из путей из источника в вершину
-    unsigned int lenTo(unsigned int i) const { return paths.at(i).at(0).n_tickets; }
-    bool lenToIsInfty(unsigned int i) const { 
+    unsigned int len_to(unsigned int i) const { return paths.at(i).at(0).n_tickets; }
+    bool len_to_is_infty(unsigned int i) const { 
         return paths.at(i).at(0).n_tickets == UINT32_MAX; 
     }
     // длительность первого из путей из источника в вершину
-    uint64_t timeTo(unsigned int i) const { return paths.at(i).at(0).time_cost; }
-    bool timeToIsInfty(unsigned int i) const { 
+    uint64_t time_to(unsigned int i) const { return paths.at(i).at(0).time_cost; }
+    bool time_to_is_infty(unsigned int i) const { 
         return paths.at(i).at(0).time_cost == UINT64_MAX; 
     }
     // стоимость первого из путей из источника в вершину
-    uint64_t fareTo(unsigned int i) const { return paths.at(i).at(0).money_cost; }
-    bool fareToIsInfty(unsigned int i) const { 
+    uint64_t fare_to(unsigned int i) const { return paths.at(i).at(0).money_cost; }
+    bool fare_to_is_infty(unsigned int i) const { 
         return paths.at(i).at(0).money_cost == UINT64_MAX; 
     }
 
     // возвращает набор путей из источника в вершину
-    auto getPathsTo(unsigned int i) const { return paths.at(i); }
+    auto get_paths_to(unsigned int i) const { return paths.at(i); }
     // возвращает количество путей из источника в вершину
-    uint64_t getNumOfPathsTo(unsigned int i) const { return paths.at(i).size(); }
+    uint64_t get_num_of_paths_to(unsigned int i) const { return paths.at(i).size(); }
     // задает набор путей из источника в вершину
-    void setPathsTo(unsigned int i, std::vector<Path> ps) { paths.at(i) = ps; }
+    void set_paths_to(unsigned int i, std::vector<Path> ps) { paths.at(i) = ps; }
     // добавляет путь в набор путей из источника в вершину
-    void addPathTo(unsigned int i, Path path) { paths.at(i).push_back(path); }
+    void add_paths_to(unsigned int i, Path path) { paths.at(i).push_back(path); }
 };
 

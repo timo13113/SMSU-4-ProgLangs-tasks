@@ -222,11 +222,11 @@ void print_paths_a_b(
     log << "Лучший(е) путь(и) из города " << city_names[a] 
         << " в город " << city_names[b] << ":\n";
     attron(COLOR_PAIR(4));
-    printw("Всего найдено %llu путей.\n", found_paths.getNumOfPathsTo(b));
-    log << "Всего найдено " << found_paths.getNumOfPathsTo(b) << " путей.\n";
+    printw("Всего найдено %llu путей.\n", found_paths.get_num_of_paths_to(b));
+    log << "Всего найдено " << found_paths.get_num_of_paths_to(b) << " путей.\n";
     attroff(COLOR_PAIR(4));
     long long unsigned int i = 1;
-        for (auto x: found_paths.getPathsTo(b))
+        for (auto x: found_paths.get_paths_to(b))
         {
             log << i << ") ";
             attron(COLOR_PAIR(3));
@@ -280,7 +280,7 @@ void print_paths_multiple(
                 attroff(A_UNDERLINE);
                 printw(" ");
                 log << "Пути в город " << city_names[j] << ": ";
-                for (auto x: found_paths.getPathsTo(j))
+                for (auto x: found_paths.get_paths_to(j))
                 {
                     log << i << ") ";
                     attron(COLOR_PAIR(3));

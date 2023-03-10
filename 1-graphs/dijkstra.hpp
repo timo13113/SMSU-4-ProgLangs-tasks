@@ -48,24 +48,24 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
             std::optional<unsigned int> v;
             for (unsigned int j = 0; j < n; j++)
                 // если есть пути в вершину
-                if (paths.hasPathsTo(j))
+                if (paths.has_paths_to(j))
                     // найти неисследованную вершину с минимальными затратами до нее
-                    if (!used.at(j) && (!v.has_value() || paths.lenTo(j) < paths.lenTo(*v))) 
+                    if (!used.at(j) && (!v.has_value() || paths.len_to(j) < paths.len_to(*v))) 
                         v = j;
             // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит 
             // (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
-            if (have_limit && (!v.has_value() || paths.lenToIsInfty(*v))) {
+            if (have_limit && (!v.has_value() || paths.len_to_is_infty(*v))) {
                 halt_on_limit = true;
                 break;
             }
             // если мы исследовали все вершины но не дошли куда надо 
             // ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
-            if (!v.has_value() || paths.lenToIsInfty(*v)) {
+            if (!v.has_value() || paths.len_to_is_infty(*v)) {
                 // std::cout << "!!! no path from A to B !!!\n";
                 return {}; // то мы не можем прийти к этой вершине вовсе
             }
             // если мы считаем предел и он превышен
-            if (have_limit && paths.lenTo(*v) > limit) 
+            if (have_limit && paths.len_to(*v) > limit) 
             {
                 halt_on_limit = true;
                 break;
@@ -81,21 +81,21 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
                     // если транспорт круиза разрешен
                     if (transport_whitelist.at(cruise.transport_type_id)) {
                         // если мы можем прийти туда быстрее
-                        if (!paths.hasPathsTo(edges.first) || paths.lenTo(*v) + 1 < paths.lenTo(edges.first)) {
+                        if (!paths.has_paths_to(edges.first) || paths.len_to(*v) + 1 < paths.len_to(edges.first)) {
                             // все новые пути через v в edges.first
                             std::vector<Path> newpaths;
-                            for (auto x: paths.getPathsTo(*v)) {
+                            for (auto x: paths.get_paths_to(*v)) {
                                 // дополнить к путям в v новый круиз до edges.first
                                 newpaths.push_back(x + std::make_pair(cruise, edges.first)); 
                             }
                             // вставить новые пути в paths
-                            paths.setPathsTo(edges.first, newpaths);
+                            paths.set_paths_to(edges.first, newpaths);
                         }
                         // если мы можем прийти туда так же быстро
-                        else if (paths.lenTo(*v) + 1 == paths.lenTo(edges.first)) {
-                            for (auto x: paths.getPathsTo(*v)) {
+                        else if (paths.len_to(*v) + 1 == paths.len_to(edges.first)) {
+                            for (auto x: paths.get_paths_to(*v)) {
                                 // дополнить к путям в v новый круиз до edges.first
-                                paths.addPathTo(edges.first, x + std::make_pair(cruise, edges.first)); 
+                                paths.add_paths_to(edges.first, x + std::make_pair(cruise, edges.first)); 
                             }
                         }
                     }
@@ -115,26 +115,26 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
             // начальная вершина
             std::optional<unsigned int> v; 
             for (unsigned int j = 0; j < n; j++)
-                if (paths.hasPathsTo(j)) // если есть пути в вершину
+                if (paths.has_paths_to(j)) // если есть пути в вершину
                     // найти неисследованную вершину с минимальными затратами до нее
-                    if (!used.at(j) && (!v.has_value() || paths.timeTo(j) < paths.timeTo(*v))) 
+                    if (!used.at(j) && (!v.has_value() || paths.time_to(j) < paths.time_to(*v))) 
                         v = j;
             // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит 
             // (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
-            if (have_limit && (!v.has_value() || paths.timeToIsInfty(*v))) 
+            if (have_limit && (!v.has_value() || paths.time_to_is_infty(*v))) 
             {
                 halt_on_limit = true;
                 break;
             }
             // если мы исследовали все вершины но не дошли куда надо 
             // ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
-            if (!v.has_value() || paths.timeToIsInfty(*v))
+            if (!v.has_value() || paths.time_to_is_infty(*v))
             {
                 // std::cout << "!!! no path from A to B !!!\n";
                 return {}; // то мы не можем прийти к этой вершине вовсе
             }
             // если мы считаем предел и он превышен
-            if (have_limit && paths.timeTo(*v) > limit)
+            if (have_limit && paths.time_to(*v) > limit)
             {
                 halt_on_limit = true;
                 break;
@@ -156,36 +156,36 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
                     // если транспорт круиза разрешен
                     if (transport_whitelist.at(cruise.transport_type_id)) {
                         // если мы можем прийти туда быстрее
-                        if (!paths.hasPathsTo(edges.first) || paths.timeTo(*v) + cruise.cruise_time < paths.timeTo(edges.first)) {
+                        if (!paths.has_paths_to(edges.first) || paths.time_to(*v) + cruise.cruise_time < paths.time_to(edges.first)) {
                             // все новые пути через v в edges.first
                             std::vector<Path> newpaths;
-                            for (auto x: paths.getPathsTo(*v)) {
+                            for (auto x: paths.get_paths_to(*v)) {
                                 // дополнить к путям в v новый круиз до edges.first
                                 newpaths.push_back(x + std::make_pair(cruise, edges.first));
                             }
                             // вставить новые пути в paths
-                            paths.setPathsTo(edges.first, newpaths);
+                            paths.set_paths_to(edges.first, newpaths);
                         } 
                         // если мы можем прийти туда так же быстро
-                        else if (paths.timeTo(*v) + cruise.cruise_time == paths.timeTo(edges.first)) {
+                        else if (paths.time_to(*v) + cruise.cruise_time == paths.time_to(edges.first)) {
                             // если можем прийти так же дешево (или если нам все равно насколько дешево)
-                            if (keep_unefficient_paths || paths.fareTo(*v) + cruise.cruise_fare == paths.fareTo(edges.first)) 
+                            if (keep_unefficient_paths || paths.fare_to(*v) + cruise.cruise_fare == paths.fare_to(edges.first)) 
                             {
-                                for (auto x: paths.getPathsTo(*v)) {
+                                for (auto x: paths.get_paths_to(*v)) {
                                     // дополнить к путям в v новый круиз до edges.first
-                                    paths.addPathTo(edges.first, x + std::make_pair(cruise, edges.first)); 
+                                    paths.add_paths_to(edges.first, x + std::make_pair(cruise, edges.first)); 
                                 }
                             }
                             // если мы можем прийти дешевле
-                            else if (paths.fareTo(*v) + cruise.cruise_fare < paths.fareTo(edges.first)) 
+                            else if (paths.fare_to(*v) + cruise.cruise_fare < paths.fare_to(edges.first)) 
                             {
                                 std::vector<Path> newpaths; // все новые пути через v в edges.first
-                                for (auto x: paths.getPathsTo(*v)) {
+                                for (auto x: paths.get_paths_to(*v)) {
                                     // дополнить к путям в v новый круиз до edges.first
                                     newpaths.push_back(x + std::make_pair(cruise, edges.first)); 
                                 }
                                 // вставить новые пути в paths
-                                paths.setPathsTo(edges.first, newpaths);
+                                paths.set_paths_to(edges.first, newpaths);
                             }
                         }
                     }
@@ -206,26 +206,26 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
             std::optional<unsigned int> v;
             for (unsigned int j = 0; j < n; j++)
                 // если есть пути в вершину
-                if (paths.hasPathsTo(j)) 
+                if (paths.has_paths_to(j)) 
                     // найти неисследованную вершину с минимальными затратами до нее
-                    if (!used.at(j) && (!v.has_value() || paths.fareTo(j) < paths.fareTo(*v))) 
+                    if (!used.at(j) && (!v.has_value() || paths.fare_to(j) < paths.fare_to(*v))) 
                         v = j;
             // если мы дошли до всех вершин до которых можем дойти но так и не привысили лимит 
             // (если мы вообще считаем лимит), т.е. вынуждены начинать с вершины с максинтом
-            if (have_limit && (!v.has_value() || paths.fareToIsInfty(*v)))
+            if (have_limit && (!v.has_value() || paths.fare_to_is_infty(*v)))
             {
                 halt_on_limit = true;
                 break;
             }
             // если мы исследовали все вершины но не дошли куда надо 
             // ИЛИ мы вынуждены начинать с вершины в которую мы никогда не заходили
-            if (!v.has_value() || paths.fareToIsInfty(*v))
+            if (!v.has_value() || paths.fare_to_is_infty(*v))
             {
                 // std::cout << "!!! no path from A to B !!!\n";
                 return {}; // то мы не можем прийти к этой вершине вовсе
             }
             // если мы считаем предел и он превышен
-            if (have_limit && paths.fareTo(*v) > limit)
+            if (have_limit && paths.fare_to(*v) > limit)
             {
                 halt_on_limit = true;
                 break;
@@ -247,39 +247,39 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
                     // если транспорт круиза разрешен
                     if (transport_whitelist.at(cruise.transport_type_id)) {
                         // если мы можем прийти туда быстрее
-                        if (!paths.hasPathsTo(edges.first) || paths.fareTo(*v) + cruise.cruise_fare < paths.fareTo(edges.first)) 
+                        if (!paths.has_paths_to(edges.first) || paths.fare_to(*v) + cruise.cruise_fare < paths.fare_to(edges.first)) 
                         {
                             // все новые пути через v в edges.first
                             std::vector<Path> newpaths; 
-                            for (auto x: paths.getPathsTo(*v)) {
+                            for (auto x: paths.get_paths_to(*v)) {
                                 // дополнить к путям в v новый круиз до edges.first
                                 newpaths.push_back(x + std::make_pair(cruise, edges.first)); 
                             }
                             // вставить новые пути в paths
-                            paths.setPathsTo(edges.first, newpaths);
+                            paths.set_paths_to(edges.first, newpaths);
                         }
                         // если мы можем прийти туда так же быстро
-                        else if (paths.fareTo(*v) + cruise.cruise_fare == paths.fareTo(edges.first)) 
+                        else if (paths.fare_to(*v) + cruise.cruise_fare == paths.fare_to(edges.first)) 
                         {
                             // если можем прийти так же дешево (или если нам все равно насколько дешево)
-                            if (keep_unefficient_paths || paths.timeTo(*v) + cruise.cruise_time == paths.timeTo(edges.first)) 
+                            if (keep_unefficient_paths || paths.time_to(*v) + cruise.cruise_time == paths.time_to(edges.first)) 
                             {
-                                for (auto x: paths.getPathsTo(*v)) {
+                                for (auto x: paths.get_paths_to(*v)) {
                                     // дополнить к путям в v новый круиз до edges.first
-                                    paths.addPathTo(edges.first, x + std::make_pair(cruise, edges.first)); 
+                                    paths.add_paths_to(edges.first, x + std::make_pair(cruise, edges.first)); 
                                 }
                             }
                             // если мы можем прийти дешевле
-                            else if (paths.timeTo(*v) + cruise.cruise_time < paths.timeTo(edges.first)) 
+                            else if (paths.time_to(*v) + cruise.cruise_time < paths.time_to(edges.first)) 
                             {
                                 // все новые пути через v в edges.first
                                 std::vector<Path> newpaths; 
-                                for (auto x: paths.getPathsTo(*v)) {
+                                for (auto x: paths.get_paths_to(*v)) {
                                     // дополнить к путям в v новый круиз до edges.first
                                     newpaths.push_back(x + std::make_pair(cruise, edges.first)); 
                                 }
                                 // вставить новые пути в paths
-                                paths.setPathsTo(edges.first, newpaths);
+                                paths.set_paths_to(edges.first, newpaths);
                             }
                         }
                     }
@@ -309,7 +309,7 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
                 if (used[i])
                 {
                     std::cout << i << ":\n";
-                    for (auto x: paths.getPathsTo(i))
+                    for (auto x: paths.get_paths_to(i))
                     {
                         x.print();
                     }
@@ -319,8 +319,8 @@ std::optional<std::pair<PathsMapping, std::vector<bool>>> dijkstra_heavy(
         else { // если мы считаем конкретные пути из А в Б (№1, 2, 3)
             std::cout << to << "\n";
             if (count_only_number_of_city_names)
-                std::cout << "answer - " << paths.lenTo(to) << " cruises minimum\n";
-            for (auto x: paths.getPathsTo(to))
+                std::cout << "answer - " << paths.len_to(to) << " cruises minimum\n";
+            for (auto x: paths.get_paths_to(to))
             {
                 x.print();
             }

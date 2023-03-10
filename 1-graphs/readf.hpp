@@ -61,7 +61,7 @@ void read_data(
         if (graph.size() < city_names.size()) {
             graph.resize(city_names.size());
         }
-        graph.addNodeToGraph(id_from, id_to, Cruise(id_transport, cruise_time, cruise_fare));
+        graph.add_node_to_graph(id_from, id_to, Cruise(id_transport, cruise_time, cruise_fare));
     }
     log << "read from file, total lines processed - " << counter << "\n";
 }
