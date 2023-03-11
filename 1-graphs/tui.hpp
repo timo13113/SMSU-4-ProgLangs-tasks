@@ -181,7 +181,7 @@ void path_print(
     const std::vector<std::string> &transport_names,
     std::fstream &log
     ) {
-    printw("Путь: %s", city_names[path.start_city].c_str());
+    printw("Путь: \n\t%s", city_names[path.start_city].c_str());
     log << "Путь: \n\t" << city_names[path.start_city];
     for (unsigned int i = 0; i < path.length(); i++)
     {
@@ -193,14 +193,14 @@ void path_print(
             "(" + transport_names.at(path[i].second.transport_type_id) + 
             ", " + std::to_string(path[i].second.cruise_time) + 
             ", "+ std::to_string(path[i].second.cruise_fare) + ")";
-        printw(" -> %s -> %s", 
+        printw(" -> %s -> \n\t%s", 
             cruise_str.c_str(), 
             city_names[path[i].first].c_str()
         );
         log << " -> " << cruise_str.c_str() << " -> \n\t" << city_names[path[i].first].c_str();
     }
     attron(COLOR_PAIR(3));
-    printw("\nВсего будет потрачено %llu минут, %llu рублей и будет осуществлено %llu прямых рейсов.", 
+    printw("\nВсего будет потрачено %lu минут, %lu рублей и будет осуществлено %u прямых рейсов.", 
         path.time_cost, path.money_cost, path.length());
     attroff(COLOR_PAIR(3));
     log << "\nВсего будет потрачено " << path.time_cost 
@@ -223,7 +223,7 @@ void print_paths_a_b(
     log << "Лучший(е) путь(и) из города " << city_names[a] 
         << " в город " << city_names[b] << ":\n";
     attron(COLOR_PAIR(4));
-    printw("Всего найдено %llu путей.\n", found_paths.get_num_of_paths_to(b));
+    printw("Всего найдено %lu путей.\n", found_paths.get_num_of_paths_to(b));
     log << "Всего найдено " << found_paths.get_num_of_paths_to(b) << " путей.\n";
     attroff(COLOR_PAIR(4));
     long long unsigned int i = 1;
@@ -231,7 +231,7 @@ void print_paths_a_b(
         {
             log << i << ") ";
             attron(COLOR_PAIR(3));
-            printw("%d) ", i++);
+            printw("%llu) ", i++);
             attron(COLOR_PAIR(3));
             path_print(x, city_names, transport_names, log);
         }
@@ -285,7 +285,7 @@ void print_paths_multiple(
                 {
                     log << i << ") ";
                     attron(COLOR_PAIR(3));
-                    printw("%d) ", i++);
+                    printw("%llu) ", i++);
                     attron(COLOR_PAIR(3));
                     path_print(x, city_names, transport_names, log);
                 }

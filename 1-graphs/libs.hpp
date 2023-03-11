@@ -64,7 +64,7 @@ auto timeit_not_void(const F& func, const char* name, std::fstream &log) {
         ret_type res = func(std::forward<decltype(args)>(args)...);
         const auto end_time = std::chrono::high_resolution_clock::now();
         const auto time = end_time - start_time;
-        log << name << " took " << time/std::chrono::microseconds(1) << " us to run\n";
+        log << name << " took " << time/std::chrono::milliseconds(1) << " ms to run\n";
         return res;
     };
 }
@@ -82,6 +82,6 @@ auto timeit_void(const F& func, const char* name, std::fstream &log) {
         func(std::forward<decltype(args)>(args)...);
         const auto end_time = std::chrono::high_resolution_clock::now();
         const auto time = end_time - start_time;
-        log << name << " took " << time/std::chrono::microseconds(1) << " us to run\n";
+        log << name << " took " << time/std::chrono::milliseconds(1) << " ms to run\n";
     };
 }
