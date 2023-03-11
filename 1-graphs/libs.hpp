@@ -11,7 +11,7 @@
 #include <chrono>
 #include <functional>
 
-#define SHOW_TRIVIAL_PATHS true
+#define SHOW_TRIVIAL_PATHS false
 
 #ifdef _WIN32
     #include <pdcurses.h>

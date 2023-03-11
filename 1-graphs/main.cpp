@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
     log.open("log.txt", std::fstream::out);
     log << "starting program...\n";
 
+    print_memory(log);
     auto t_read_data = timeit_void(read_data, "read_data", log);
 
     // "data.txt" - <50 строк

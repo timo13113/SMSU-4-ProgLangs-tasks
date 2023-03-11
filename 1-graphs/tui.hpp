@@ -152,7 +152,7 @@ void transport_input(
     }
 }
 
-void we_are_sorry() {
+void we_are_sorry(std::fstream &log) {
     clear();
     std::string truly_sorry1 = 
     std::string("Мы не нашли путь между этими городами с такими условиями :(\n\n");
@@ -172,6 +172,7 @@ void we_are_sorry() {
     attroff(COLOR_PAIR(2));
     printw("\n\nНажмите любую клавишу, чтобы вернуться в главное меню...");
     curs_set(0);
+    log << "Путь не был найден\n";
     getch();
 }
 void path_print(
@@ -291,7 +292,7 @@ void print_paths_multiple(
             }
         }
     attron(COLOR_PAIR(4));
-    printw("Всего найдено %llu путей в %u городов.", i-1, num_visited);
+    printw("Всего найдено %llu путей в %u городов.", i-1, num_visited-(int)!SHOW_TRIVIAL_PATHS);
     log << "Всего найдено " << i-1 << " путей в " << num_visited << " городов.";
     attroff(COLOR_PAIR(4));
     printw("\n\nНажмите любую клавишу, чтобы вернуться в главное меню...");
@@ -316,11 +317,13 @@ void scr_1(
     auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, true, false, false, false, 0, false);
+    log << "------\n### Результат выполнения задания #1 ###\n------\n";
     if (!ans.has_value()) // задание №1
         // не нашли путь из А в Б
-        we_are_sorry();
+        we_are_sorry(log);
     else 
         print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
+    log << "------\n#######################################\n------\n";
 }
 void scr_2(
     const std::vector<std::string> &city_names,
@@ -338,11 +341,13 @@ void scr_2(
     auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, false, true, false, false, 0, false);
+    log << "------\n### Результат выполнения задания #2 ###\n------\n";
     if (!ans.has_value()) // задание №2
         // не нашли путь из А в Б
-        we_are_sorry();
+        we_are_sorry(log);
     else
         print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
+    log << "------\n#######################################\n------\n";
 }
 void scr_3(
     const std::vector<std::string> &city_names,
@@ -360,11 +365,13 @@ void scr_3(
     auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, b, graph, transport_whitelist, true, true, true, false, 0, false);
+    log << "------\n### Результат выполнения задания #3 ###\n------\n";
     if (!ans.has_value()) // задание №3
         // не нашли путь из А в Б
-        we_are_sorry();
+        we_are_sorry(log);
     else 
         print_paths_a_b(a, b, city_names, ans.value().first, transport_names, log);
+    log << "------\n#######################################\n------\n";
 }
 void scr_4(
     const std::vector<std::string> &city_names,
@@ -382,8 +389,10 @@ void scr_4(
     auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, a, graph, transport_whitelist, false, true, false, true, limit, false);
+    log << "------\n### Результат выполнения задания #4 ###\n------\n";
     print_paths_multiple(
         a, city_names, ans.value().second, ans.value().first, transport_names, log);
+    log << "------\n#######################################\n------\n";
 }
 void scr_5(
     const std::vector<std::string> &city_names,
@@ -401,8 +410,10 @@ void scr_5(
     auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     auto ans = t_dijkstra_heavy(
         a, a, graph, transport_whitelist, true, true, false, true, limit, false);
+    log << "------\n### Результат выполнения задания #5 ###\n------\n";
     print_paths_multiple(
         a, city_names, ans.value().second, ans.value().first, transport_names, log);
+    log << "------\n#######################################\n------\n";
 }
 
 void select_screen(
