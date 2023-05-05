@@ -1,7 +1,6 @@
 #include "libs.hpp"
 #include "classes.hpp"
 #include "dijkstra.hpp"
-#include "debug.hpp"
 
 unsigned int city_input(
     const NamesMapping &city_names,

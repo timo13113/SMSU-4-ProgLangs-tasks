@@ -2,7 +2,6 @@
 #include "classes.hpp"
 #include "readf.hpp"
 #include "tui.hpp"
-#include "debug.hpp"
 
 // названия городов
 NamesMapping city_names;
