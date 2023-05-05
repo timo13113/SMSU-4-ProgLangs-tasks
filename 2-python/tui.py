@@ -131,7 +131,7 @@ def city_input(stdscr: 'c._CursesWindow',
         stdscr.clear()
         stdscr.addstr("Введите город, " + display_text + "\n\n")
         if warn:
-            print(bad_city)
+            # print(bad_city)
             stdscr.addstr(bad_city + " - такого города нет в базе!\n", c.color_pair(2))
         stdscr.refresh()
         city = stdscr.getstr(200).decode('UTF-8')

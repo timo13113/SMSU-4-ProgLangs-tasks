@@ -31,7 +31,8 @@ class NamesMapping:
         return ret
 
 
-@dataclass(eq=True, frozen=True, slots=True)
+# @dataclass(eq=True, frozen=True, slots=True)
+@dataclass(eq=True, frozen=True)
 class Cruise:
     # __slots__ = ['transport_type_id', 'cruise_time', 'cruise_fare']
     transport_type_id: int = 0

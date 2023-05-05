@@ -6,11 +6,11 @@ from util import *
 import sys
 
 
-def main(argv):
-    if len(argv) < 2:
-        print("Не предоставлено имя файла, из которого выгружаются данные!")
-        return
-    file = argv[1]
+def main(_, file="25_cubes.txt"):
+    # if len(argv) < 2:
+    #     print("Не предоставлено имя файла, из которого выгружаются данные!")
+    #     return
+    # file = argv[1]
 
     g = Graph({})
     cities = NamesMapping()
@@ -31,4 +31,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(*sys.argv)

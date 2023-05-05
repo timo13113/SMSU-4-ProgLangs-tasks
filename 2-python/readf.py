@@ -15,6 +15,8 @@ def readf(
             counter += 1
 
             objs = line.split('"')
+            print(objs, file=logs)
+
             from_city, to_city, transport_type = objs[1], objs[3], objs[5]
             cruise_time, cruise_fare = [int(j) for j in objs[-1].split(' ')[1:]]
 
