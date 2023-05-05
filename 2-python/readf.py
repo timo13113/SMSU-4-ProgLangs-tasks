@@ -10,6 +10,7 @@ def readf(
         for line in f:
             if (i := line.find('#')) != -1:
                 line = line[:i]
+            line = line.strip()
             if len(line) == 0:
                 continue
             counter += 1
