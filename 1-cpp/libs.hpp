@@ -61,7 +61,7 @@
     auto return_max_memory() {
         struct rusage mem;
         getrusage(RUSAGE_SELF, &mem);
-        return pmc.PeakWorkingSetSize / 1024;
+        return mem.ru_maxrss;
     }
 #endif
 
