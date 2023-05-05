@@ -12,6 +12,7 @@
 #include <functional>
 #include <stdexcept>
 #include <unordered_map>
+#include <variant>
 
 #define SHOW_TRIVIAL_PATHS false
 

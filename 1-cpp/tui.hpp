@@ -211,7 +211,6 @@ void print_paths_a_b(
     const unsigned int a, 
     const unsigned int b, 
     const NamesMapping &city_names, 
-    // const PathsMapping &found_paths, 
     const SinglePathMapping &found_paths, 
     const NamesMapping &transport_names,
     std::fstream &log
@@ -248,8 +247,6 @@ void print_paths_a_b(
 void print_paths_multiple(
     const unsigned int a, 
     const NamesMapping &city_names, 
-    const std::vector<bool> &city_was_reached,
-    // const PathsMapping &found_paths, 
     const SinglePathMapping &found_paths, 
     const NamesMapping &transport_names,
     std::fstream &log
@@ -257,22 +254,17 @@ void print_paths_multiple(
     clear();
     printw("Все пути из города %s:\n", city_names[a].c_str());
     log << "Все пути из города " << city_names[a] << ":\n";
-    unsigned int num_visited = 0;
-    for (bool x: city_was_reached)
-        if (x) num_visited++;
+    unsigned int num_visited = found_paths.get_used().size();
     
-    for (unsigned int j = 0; j < found_paths.get_n(); j++) {
-        if ((found_paths.get_source_id() == j) && !SHOW_TRIVIAL_PATHS)
+    for (auto x : found_paths.get_used()) {
+        if ((found_paths.get_source_id() == x) && !SHOW_TRIVIAL_PATHS)
             continue;
-        if (city_was_reached.at(j))
-        {
-            attron(A_UNDERLINE);
-            printw("Путь в город %s:", city_names[j].c_str());
-            attroff(A_UNDERLINE);
-            printw(" ");
-            log << "Путь в город " << city_names[j] << ": ";
-            path_print(found_paths.get_path_to(j), city_names, transport_names, log);
-        }
+        attron(A_UNDERLINE);
+        printw("Путь в город %s:", city_names[x].c_str());
+        attroff(A_UNDERLINE);
+        printw(" ");
+        log << "Путь в город " << city_names[x] << ": ";
+        path_print(found_paths.get_path_to(x), city_names, transport_names, log);
     }
     attron(COLOR_PAIR(4));
     printw("Всего найдено %u путей в %u городов.", 
@@ -300,21 +292,18 @@ void scr_1(
     transport_input(transport_names, transport_whitelist);
     clear();
     printw("Расчитываем пути...");
-
-
-
     // auto t_dijkstra_heavy = timeit_not_void(dijkstra_heavy, "dijkstra_heavy", log);
     // auto ans = t_dijkstra_heavy(
     //     a, b, graph, transport_whitelist, true, false, false, false, 0, false);
     auto t_dijkstra_light = timeit_not_void(dijkstra_light, "dijkstra_light", log);
     auto ans = t_dijkstra_light(
-        a, b, graph, transport_whitelist, true, false, false, false, 0, false);
+        a, b, graph, transport_whitelist, 0, 1);
     log << "------\n### Результат выполнения задания #1 ###\n------\n";
-    if (!ans.first.has_value()) // задание №1
+    if (!ans.first.has_path_to(b)) // задание №1
         // не нашли путь из А в Б
         we_are_sorry(log);
     else 
-        print_paths_a_b(a, b, city_names, ans.first.value().first, transport_names, log);
+        print_paths_a_b(a, b, city_names, ans.first, transport_names, log);
     log << "------\n#######################################\n------\n";
     log << "# cpp, t = " << ans.second << " ms, " <<
           "m = " << return_max_memory() << " KB, " <<
@@ -338,13 +327,13 @@ void scr_2(
     //     a, b, graph, transport_whitelist, false, true, false, false, 0, false);
     auto t_dijkstra_light = timeit_not_void(dijkstra_light, "dijkstra_light", log);
     auto ans = t_dijkstra_light(
-        a, b, graph, transport_whitelist, false, true, false, false, 0, false);
+        a, b, graph, transport_whitelist, 0, 2);
     log << "------\n### Результат выполнения задания #2 ###\n------\n";
-    if (!ans.first.has_value()) // задание №2
+    if (!ans.first.has_path_to(b)) // задание №2
         // не нашли путь из А в Б
         we_are_sorry(log);
     else
-        print_paths_a_b(a, b, city_names, ans.first.value().first, transport_names, log);
+        print_paths_a_b(a, b, city_names, ans.first, transport_names, log);
     log << "------\n#######################################\n------\n";
     log << "# cpp, t = " << ans.second << " ms, " <<
           "m = " << return_max_memory() << " KB, " <<
@@ -368,13 +357,13 @@ void scr_3(
     //     a, b, graph, transport_whitelist, true, true, true, false, 0, false);
     auto t_dijkstra_light = timeit_not_void(dijkstra_light, "dijkstra_light", log);
     auto ans = t_dijkstra_light(
-        a, b, graph, transport_whitelist, true, true, true, false, 0, false);
+        a, b, graph, transport_whitelist, 0, 3);
     log << "------\n### Результат выполнения задания #3 ###\n------\n";
-    if (!ans.first.has_value()) // задание №3
+    if (!ans.first.has_path_to(b)) // задание №3
         // не нашли путь из А в Б
         we_are_sorry(log);
     else 
-        print_paths_a_b(a, b, city_names, ans.first.value().first, transport_names, log);
+        print_paths_a_b(a, b, city_names, ans.first, transport_names, log);
     log << "------\n#######################################\n------\n";
     log << "# cpp, t = " << ans.second << " ms, " <<
           "m = " << return_max_memory() << " KB, " <<
@@ -398,10 +387,10 @@ void scr_4(
     //     a, a, graph, transport_whitelist, false, true, false, true, limit, false);
     auto t_dijkstra_light = timeit_not_void(dijkstra_light, "dijkstra_light", log);
     auto ans = t_dijkstra_light(
-        a, a, graph, transport_whitelist, false, true, false, true, limit, false);
+        a, a, graph, transport_whitelist, limit, 4);
     log << "------\n### Результат выполнения задания #4 ###\n------\n";
     print_paths_multiple(
-        a, city_names, ans.first.value().second, ans.first.value().first, transport_names, log);
+        a, city_names, ans.first, transport_names, log);
     log << "------\n#######################################\n------\n";
     log << "# cpp, t = " << ans.second << " ms, " <<
           "m = " << return_max_memory() << " KB, " <<
@@ -425,10 +414,10 @@ void scr_5(
     //     a, a, graph, transport_whitelist, true, true, false, true, limit, false);
     auto t_dijkstra_light = timeit_not_void(dijkstra_light, "dijkstra_light", log);
     auto ans = t_dijkstra_light(
-        a, a, graph, transport_whitelist, true, true, false, true, limit, false);
+        a, a, graph, transport_whitelist, limit, 5);
     log << "------\n### Результат выполнения задания #5 ###\n------\n";
     print_paths_multiple(
-        a, city_names, ans.first.value().second, ans.first.value().first, transport_names, log);
+        a, city_names, ans.first, transport_names, log);
     log << "------\n#######################################\n------\n";
     log << "# cpp, t = " << ans.second << " ms, " <<
           "m = " << return_max_memory() << " KB, " <<

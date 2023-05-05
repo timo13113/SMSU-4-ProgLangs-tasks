@@ -229,57 +229,27 @@ public:
     }
 };
 
-/**
- * Класс маппинга путей из некой точки выхода - источника в каждую другую точку, 
- * если соответствующие пути существуют/были найдены
- */
-class PathsMapping {
 
-    std::vector<std::vector<Path>> paths;
-    unsigned int source_id;
-    unsigned int n;
-
+class DoubleWeightedIndex{
 public:
-    /**
-     *  @brief задание маппинга путей
-     *  @param _n количество точек
-     *  @param _source_id айди источника
-     */
-    PathsMapping(unsigned int _n, unsigned int _source_id) {
-        paths.resize(_n);
-        // тривиальный путь из себя в себя который не требует транспорта и имеет (0, 0) стоимость
-        paths.at(_source_id) = std::vector<Path>(
-            1, Path(std::vector<Cruise>(), _source_id, std::vector<unsigned int>())
-        );
-        source_id = _source_id;
-        n = _n;
+    uint64_t weight1, weight2;
+    unsigned int index;
+    DoubleWeightedIndex() = default;
+    DoubleWeightedIndex(uint64_t _weight1, uint64_t _weight2, unsigned int _index) {
+        weight1 = _weight1;
+        weight2 = _weight2;
+        index = _index;
     }
-    // есть ли в маппинге путь из источника в аргумент
-    bool has_paths_to(unsigned int dest) const { return !paths.at(dest).empty(); }
-    // кол-во прямых рейсов первого из путей из источника в вершину
-    unsigned int len_to(unsigned int i) const { return paths.at(i).at(0).n_tickets; }
-    bool len_to_is_infty(unsigned int i) const { 
-        return paths.at(i).at(0).n_tickets == UINT32_MAX; 
-    }
-    // длительность первого из путей из источника в вершину
-    uint64_t time_to(unsigned int i) const { return paths.at(i).at(0).time_cost; }
-    bool time_to_is_infty(unsigned int i) const { 
-        return paths.at(i).at(0).time_cost == UINT64_MAX; 
-    }
-    // стоимость первого из путей из источника в вершину
-    uint64_t fare_to(unsigned int i) const { return paths.at(i).at(0).money_cost; }
-    bool fare_to_is_infty(unsigned int i) const { 
-        return paths.at(i).at(0).money_cost == UINT64_MAX; 
-    }
+};
 
-    // возвращает набор путей из источника в вершину
-    auto get_paths_to(unsigned int i) const { return paths.at(i); }
-    // возвращает количество путей из источника в вершину
-    uint64_t get_num_of_paths_to(unsigned int i) const { return paths.at(i).size(); }
-    // задает набор путей из источника в вершину
-    void set_paths_to(unsigned int i, std::vector<Path> ps) { paths.at(i) = ps; }
-    // добавляет путь в набор путей из источника в вершину
-    void add_paths_to(unsigned int i, Path path) { paths.at(i).push_back(path); }
+class comparator_double {
+public:
+    bool operator() (DoubleWeightedIndex const &l, DoubleWeightedIndex const &r) {
+        if (l.weight1 == r.weight1)
+            return l.weight2 > r.weight2;
+        else
+            return l.weight1 > r.weight1;
+    }
 };
 
 
@@ -288,51 +258,104 @@ public:
  * если соответствующий путь существует/был найден
  */
 class SinglePathMapping {
-
-    std::vector<std::optional<Path>> paths;
     unsigned int source_id;
     unsigned int n;
+    int instruction;
+    std::unordered_map<unsigned int, std::optional<Path>> paths;
+    std::vector<unsigned int> used;
+    std::vector<DoubleWeightedIndex> distances;
+
 
 public:
     /**
      *  @brief задание маппинга путей
      *  @param _n количество точек
      *  @param _source_id айди источника
+     *  @param _instruction режим работы
      */
-    SinglePathMapping(unsigned int _n, unsigned int _source_id) {
-        paths.resize(_n);
+    SinglePathMapping(unsigned int _n, unsigned int _source_id, int _instruction) {
         // тривиальный путь из себя в себя который не требует транспорта и имеет (0, 0) стоимость
-        paths.at(_source_id) = Path(std::vector<Cruise>(), _source_id, std::vector<unsigned int>());
+        paths[_source_id] = Path(std::vector<Cruise>(), _source_id, std::vector<unsigned int>());
         source_id = _source_id;
         n = _n;
+        instruction = _instruction;
+        distances.push_back(DoubleWeightedIndex(0, 0, source_id));
+        std::make_heap(distances.begin(), distances.end(), comparator_double());
     }
-    // кол-во прямых рейсов пути из источника в вершину
-    unsigned int len_to(unsigned int i) const { return paths.at(i).value().n_tickets; }
-    bool len_to_is_infty(unsigned int i) const { 
-        return paths.at(i).value().n_tickets == UINT32_MAX; 
+    // // кол-во прямых рейсов пути из источника в вершину
+    // unsigned int len_to(unsigned int i) const { return paths.at(i).value().n_tickets; }
+    // bool len_to_is_infty(unsigned int i) const { 
+    //     return paths.at(i).value().n_tickets == UINT32_MAX; 
+    // }
+    // // длительность пути из источника в вершину
+    // uint64_t time_to(unsigned int i) const { return paths.at(i).value().time_cost; }
+    // bool time_to_is_infty(unsigned int i) const { 
+    //     return paths.at(i).value().time_cost == UINT64_MAX; 
+    // }
+    // // стоимость пути из источника в вершину
+    // uint64_t fare_to(unsigned int i) const { return paths.at(i).value().money_cost; }
+    // bool fare_to_is_infty(unsigned int i) const { 
+    //     return paths.at(i).value().money_cost == UINT64_MAX; 
+    // }
+
+    void push(Path path) {
+        unsigned int destination = path.transfer_cities.back();
+        DoubleWeightedIndex item;
+        switch (instruction)
+        {
+        case 1:
+            item = DoubleWeightedIndex(path.time_cost, path.money_cost, destination);
+            break;
+        case 2:
+            item = DoubleWeightedIndex(path.money_cost, 0, destination);
+            break;
+        case 3:
+            item = DoubleWeightedIndex(path.n_tickets, 0, destination);
+            break;
+        case 4:
+            item = DoubleWeightedIndex(path.money_cost, 0, destination);
+            break;
+        default: // 5
+            item = DoubleWeightedIndex(path.time_cost, 0, destination);
+            break;
+        }
+        distances.push_back(item);
+        std::push_heap(distances.begin(), distances.end(), comparator_double());
+        paths[destination] = path;
     }
-    // длительность пути из источника в вершину
-    uint64_t time_to(unsigned int i) const { return paths.at(i).value().time_cost; }
-    bool time_to_is_infty(unsigned int i) const { 
-        return paths.at(i).value().time_cost == UINT64_MAX; 
-    }
-    // стоимость пути из источника в вершину
-    uint64_t fare_to(unsigned int i) const { return paths.at(i).value().money_cost; }
-    bool fare_to_is_infty(unsigned int i) const { 
-        return paths.at(i).value().money_cost == UINT64_MAX; 
+
+    std::optional<DoubleWeightedIndex> pop() {
+        if (distances.empty())
+            return {};
+        std::pop_heap(distances.begin(), distances.end(), comparator_double());
+        DoubleWeightedIndex ret = distances.back();
+        distances.pop_back();
+        used.push_back(ret.index);
+        if (!distances.empty()) 
+        {
+            std::pop_heap(distances.begin(), distances.end(), comparator_double());
+            while (ret.index == distances.back().index) {
+                std::pop_heap(distances.begin(), distances.end(), comparator_double());
+                distances.pop_back();
+            }
+        }
+        return ret;
     }
 
     // есть ли в маппинге путь из источника в аргумент
     bool has_path_to(unsigned int i) const { 
+        if (paths.find(i) == paths.end())
+            return false;
         return paths.at(i).has_value(); 
     }
     // возвращает путь из источника в вершину
     auto get_path_to(unsigned int i) const { return paths.at(i).value(); }
     // задает путь из источника в вершину
-    void set_path_to(unsigned int i, Path p) { paths.at(i) = p; }
+    // void set_path_to(unsigned int i, Path p) { paths.at(i) = p; }
 
     unsigned int get_source_id() const { return source_id; }
     unsigned int get_n() const { return n; }
+    auto get_used() const { return used; }
 
 };
 
